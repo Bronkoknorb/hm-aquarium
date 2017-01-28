@@ -6,6 +6,7 @@ from statistics import median
 import json
 import requests
 import logging
+from w1thermsensor import W1ThermSensor
 
 logger = logging.getLogger('hm-aquarium')
 
@@ -29,9 +30,11 @@ def main():
     values_count = 0
     temperature_values = []
 
+    sensor = W1ThermSensor()
+
     while True:
         start_time = clock()
-        temperature_values.append(24.5)
+        temperature_values.append(sensor.get_temperature())
         values_count += 1
         if values_count >= aggregated_measurements_count:
             values_count = 0
@@ -41,10 +44,6 @@ def main():
         processing_time = clock() - start_time
         sleep_time = max(measure_interval - processing_time, 0)
         sleep(sleep_time)
-
-
-def aggregate_values(values_map):
-    return {name: median(values) for name, values in values_map.items()}
 
 
 def send(temperature):

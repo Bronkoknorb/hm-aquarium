@@ -9,7 +9,7 @@ influx_url = "http://gerty:8086/"
 influx_database_name = "aqua"
 
 # time interval for sending moisture measurements to the server (seconds)
-send_measurements_interval = 10  # seconds
+send_measurements_interval = 60  # seconds
 
 # number of measurements that should be aggregated before sending them to the server
 aggregated_measurements_count = 6  # default: 6 per minute, i.e. measuring every 10 seconds
