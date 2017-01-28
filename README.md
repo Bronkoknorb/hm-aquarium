@@ -47,7 +47,7 @@ To automatically start the script when the Raspberry Pi is rebooted, execute:
 
 ... and then add the following line to the crontab:
 
-    @reboot sleep 5 && screen -dmS hm-aquarium /home/pi/software/oh-aquarium/main.py
+    @reboot sleep 5 && screen -dmS hm-aquarium /home/pi/software/hm-aquarium/main.py
 
 (Replace the full path to the script with the location where you installed it.)
 
