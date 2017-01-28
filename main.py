@@ -6,6 +6,8 @@ from statistics import median
 import json
 import requests
 import logging
+import sys
+import subprocess
 from w1thermsensor import W1ThermSensor
 
 logger = logging.getLogger('hm-aquarium')
@@ -40,17 +42,18 @@ def main():
             values_count = 0
             median_temperature = median(temperature_values)
             temperature_values = []
-            send(median_temperature)
+            send(median_temperature, "water")
+            send(get_room_temperature(), "room")
         processing_time = clock() - start_time
         sleep_time = max(measure_interval - processing_time, 0)
         sleep(sleep_time)
 
 
-def send(temperature):
+def send(temperature, name):
     url = get_service_endpoint("write?db=" + influx_database_name)
     headers = {}
-    data = "temp,name=water value=" + str(temperature)
-    print("Logging water temperature: " + str(temperature))
+    data = "temp,name=" + name + " value=" + str(temperature)
+    print("Sending " + name + " temperature: " + str(temperature))
     try:
         response = requests.post(url, data=data, headers=headers, timeout=5.0)
         response.raise_for_status()
@@ -64,5 +67,11 @@ def get_service_endpoint(endpoint):
     else:
         return influx_url + "/" + endpoint
 
+
+def get_room_temperature():
+    thermostat_data = subprocess.check_output(["/home/pi/software/heatmiser-wifi/bin/heatmiser_json.pl", "-h", "heat", "-p", "1234"])
+    thermostat_json = json.loads(thermostat_data.decode(sys.stdout.encoding))
+    #pprint(thermostat_json)
+    return thermostat_json["heat"]["temperature"]["internal"]
 
 main()
