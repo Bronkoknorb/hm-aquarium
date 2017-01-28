@@ -50,3 +50,7 @@ To automatically start the script when the Raspberry Pi is rebooted, execute:
     @reboot sleep 5 && screen -dmS hm-aquarium /home/pi/software/oh-aquarium/main.py
 
 (Replace the full path to the script with the location where you installed it.)
+
+Prerequisite: screen needs to be installed:
+
+    sudo apt-get install screen
