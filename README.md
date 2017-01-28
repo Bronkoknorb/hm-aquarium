@@ -18,6 +18,10 @@ Python [requests HTTP library](http://docs.python-requests.org):
 Python [gpiozero library](http://gpiozero.readthedocs.io):
 
     sudo apt-get install python3-gpiozero
+    
+Python [w1thermsensor library]():
+
+    sudo apt-get install python3-w1thermsensor
 
 ## Usage
 
