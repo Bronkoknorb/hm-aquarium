@@ -19,7 +19,7 @@ Python [gpiozero library](http://gpiozero.readthedocs.io):
 
     sudo apt-get install python3-gpiozero
     
-Python [w1thermsensor library]():
+Python [w1thermsensor library](https://github.com/timofurrer/w1thermsensor/):
 
     sudo apt-get install python3-w1thermsensor
 
