@@ -2,3 +2,7 @@
 /.idea/
 
 /config.py
+
+/*.log
+/*.log.gz
+
