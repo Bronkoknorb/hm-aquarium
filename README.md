@@ -47,10 +47,20 @@ To automatically start the script when the Raspberry Pi is rebooted, execute:
 
 ... and then add the following line to the crontab:
 
-    @reboot sleep 5 && screen -dmS hm-aquarium /home/pi/software/hm-aquarium/main.py
+    @reboot sleep 5 && /home/pi/software/hm-aquarium/start.sh
 
-(Replace the full path to the script with the location where you installed it.)
+(Replace the path of the script with the location where you installed it.)
 
-Prerequisite: screen needs to be installed:
+#### Logrotate
 
-    sudo apt-get install screen
+To avoid that the log file grows infinite create the following logrotate rule as `/etc/logrotate.d/hm-aquarium`:
+
+```
+/home/pi/software/hm-aquarium/hm-aquarium.log {
+   weekly
+   rotate 4
+   compress
+   missingok
+}
+```
+(Replace the path of the logfile with the location where you installed it.)
