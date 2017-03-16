@@ -61,6 +61,7 @@ To avoid that the log file grows infinite create the following logrotate rule as
    rotate 4
    compress
    missingok
+   copytruncate
 }
 ```
 (Replace the path of the logfile with the location where you installed it.)
