@@ -4,5 +4,4 @@
 /config.py
 
 /*.log
-/*.log.gz
-
+/*.log.*
