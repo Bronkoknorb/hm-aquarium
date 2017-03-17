@@ -8,6 +8,7 @@ import requests
 import logging
 import sys
 import subprocess
+import datetime
 from w1thermsensor import W1ThermSensor
 
 logging.basicConfig(format='%(asctime)s %(levelname)s\t%(message)s', level=logging.WARNING)
@@ -20,6 +21,43 @@ except ImportError as err:
     print("The configuration file config.py does not exist. Have a look at config.sample.py for reference. (" +
           str(err) + ")")
     exit(1)
+
+
+class RemotePowerSocket:
+    """
+    Allows to control a remote power socket via a 433Mhz sender.
+    """
+    def __init__(self, name: str, system_code: str, unit_code: str):
+        self.name = name
+        self.system_code = system_code
+        self.unit_code = unit_code
+        self.is_on = None  # initially unknown
+
+    def on(self):
+        self.switch(True)
+
+    def off(self):
+        self.switch(False)
+
+    def switch(self, on: bool):
+        if on != self.is_on:
+            logger.info("Turning " + self.name + " " + ("on" if on else "off"))
+            on_off_param = "1" if on else "0"
+            # let's try it three times and also sleep afterwards a bit to not interfere with other calls
+            # (I am probably overly cautious)
+            self.send_signal(self.system_code, self.unit_code, on_off_param)
+            sleep(0.6)
+            self.send_signal(self.system_code, self.unit_code, on_off_param)
+            sleep(0.5)
+            self.send_signal(self.system_code, self.unit_code, on_off_param)
+            sleep(0.5)
+            self.is_on = on
+
+    @staticmethod
+    def send_signal(system_code: str, unit_code:str, on_off_param: str):
+        # this is the send tool from https://github.com/xkonni/raspberry-remote
+        # (compiled with 'make send')
+        subprocess.call(["/home/pi/software/raspberry-remote/send", system_code, unit_code, on_off_param])
 
 
 def main():
@@ -36,6 +74,9 @@ def main():
     room_temperature_values = []
 
     sensor = W1ThermSensor()
+
+    daylight = RemotePowerSocket("Daylight", "01000", "1")
+    moonlight = RemotePowerSocket("Moonlight", "01000", "2")
 
     def get_water_temperature():
         try:
@@ -64,6 +105,8 @@ def main():
             water_temperature_values = []
             room_temperature_values = []
             values_count = 0
+        daylight.switch(daylight_on_condition())
+        moonlight.switch(moonlight_on_condition())
         processing_time = clock() - start_time
         sleep_time = max(measure_interval - processing_time, 0)
         sleep(sleep_time)
@@ -90,12 +133,23 @@ def get_service_endpoint(endpoint):
 
 def get_room_temperature():
     try:
-        thermostat_data = subprocess.check_output(["/home/pi/software/heatmiser-wifi/bin/heatmiser_json.pl", "-h", "heat", "-p", "1234"])
+        # this is the heatmiser-wifi json tool from https://github.com/thoukydides/heatmiser-wifi
+        thermostat_data = subprocess.check_output(["/home/pi/software/heatmiser-wifi/bin/heatmiser_json.pl",
+                                                   "-h", "heat", "-p", "1234"])
         thermostat_json = json.loads(thermostat_data.decode(sys.stdout.encoding))
         # pprint(thermostat_json)
         return thermostat_json["heat"]["temperature"]["internal"]
     except:
         logger.exception("Communication error with thermostat")
         return None
+
+
+def daylight_on_condition():
+    return datetime.time(10, 00) <= datetime.datetime.now().time() <= datetime.time(19, 00)
+
+
+def moonlight_on_condition():
+    return datetime.time(19, 00) <= datetime.datetime.now().time() <= datetime.time(20, 30)
+
 
 main()
