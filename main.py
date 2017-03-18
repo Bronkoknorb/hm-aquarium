@@ -105,8 +105,8 @@ def main():
             water_temperature_values = []
             room_temperature_values = []
             values_count = 0
-        daylight.switch(daylight_on_condition())
         moonlight.switch(moonlight_on_condition())
+        daylight.switch(daylight_on_condition())
         processing_time = clock() - start_time
         sleep_time = max(measure_interval - processing_time, 0)
         sleep(sleep_time)
