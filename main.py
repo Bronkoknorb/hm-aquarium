@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from time import sleep, clock
+from time import sleep, time
 from pprint import pprint
 from statistics import median
 import json
@@ -86,7 +86,7 @@ def main():
             return None
 
     while True:
-        start_time = clock()
+        start_time = time()
         water_temp = get_water_temperature()
         if water_temp is not None:
             water_temperature_values.append(water_temp)
@@ -107,7 +107,7 @@ def main():
             values_count = 0
         moonlight.switch(moonlight_on_condition())
         daylight.switch(daylight_on_condition())
-        processing_time = clock() - start_time
+        processing_time = time() - start_time
         sleep_time = max(measure_interval - processing_time, 0)
         sleep(sleep_time)
 
@@ -150,6 +150,7 @@ def daylight_on_condition():
 
 def moonlight_on_condition():
     return datetime.time(19, 00) <= datetime.datetime.now().time() <= datetime.time(20, 30)
+    #return False
 
 
 main()
