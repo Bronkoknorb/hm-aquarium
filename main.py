@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from time import sleep, time
+import asyncio
+from time import sleep
 from pprint import pprint
 from statistics import median
 import json
@@ -60,6 +61,10 @@ class RemotePowerSocket:
         subprocess.call(["/home/pi/software/raspberry-remote/send", system_code, unit_code, on_off_param])
 
 
+loop = asyncio.get_event_loop()
+
+
+@asyncio.coroutine
 def main():
     logger.info("Hm, Aquarium!")
 
@@ -81,12 +86,14 @@ def main():
     def get_water_temperature():
         try:
             return sensor.get_temperature()
+        except KeyboardInterrupt:
+            raise
         except:
             logger.exception("Error reading water temperature sensor")
             return None
 
     while True:
-        start_time = time()
+        start_time = loop.time()
         water_temp = get_water_temperature()
         if water_temp is not None:
             water_temperature_values.append(water_temp)
@@ -107,9 +114,9 @@ def main():
             values_count = 0
         moonlight.switch(moonlight_on_condition())
         daylight.switch(daylight_on_condition())
-        processing_time = time() - start_time
+        processing_time = loop.time() - start_time
         sleep_time = max(measure_interval - processing_time, 0)
-        sleep(sleep_time)
+        yield from asyncio.sleep(sleep_time)
 
 
 def send(temperature, name):
@@ -120,6 +127,8 @@ def send(temperature, name):
     try:
         response = requests.post(url, data=data, headers=headers, timeout=5.0)
         response.raise_for_status()
+    except KeyboardInterrupt:
+        raise
     except:
         logger.exception("Communication error with server")
 
@@ -139,18 +148,22 @@ def get_room_temperature():
         thermostat_json = json.loads(thermostat_data.decode(sys.stdout.encoding))
         # pprint(thermostat_json)
         return thermostat_json["heat"]["temperature"]["internal"]
+    except KeyboardInterrupt:
+        raise
     except:
         logger.exception("Communication error with thermostat")
         return None
 
 
 def daylight_on_condition():
-    return datetime.time(10, 00) <= datetime.datetime.now().time() <= datetime.time(19, 00)
+    return datetime.time(9, 30) <= datetime.datetime.now().time() <= datetime.time(19, 00)
 
 
 def moonlight_on_condition():
     return datetime.time(19, 00) <= datetime.datetime.now().time() <= datetime.time(20, 30)
     #return False
 
-
-main()
+try:
+    loop.run_until_complete(loop.create_task(main()))
+finally:
+    loop.close()
