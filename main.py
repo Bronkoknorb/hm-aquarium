@@ -164,6 +164,6 @@ def moonlight_on_condition():
     #return False
 
 try:
-    loop.run_until_complete(loop.create_task(main()))
+    loop.run_until_complete(main())
 finally:
     loop.close()
