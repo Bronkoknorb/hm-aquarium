@@ -10,18 +10,22 @@ The following additional software packages will be required:
 Python 3:
 
     sudo apt-get install python3
-    
-Python [requests HTTP library](http://docs.python-requests.org):
 
-    sudo apt-get install python3-requests
+PIP for installing Python libraries:
+
+    sudo apt-get install python3-pip
 
 Python [gpiozero library](http://gpiozero.readthedocs.io):
 
     sudo apt-get install python3-gpiozero
-    
+
 Python [w1thermsensor library](https://github.com/timofurrer/w1thermsensor/):
 
     sudo apt-get install python3-w1thermsensor
+
+Python [websockets library](https://websockets.readthedocs.io/):
+
+    sudo pip3 install websockets
 
 ## Usage
 

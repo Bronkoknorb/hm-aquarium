@@ -5,11 +5,11 @@ from time import sleep
 from pprint import pprint
 from statistics import median
 import json
-import requests
 import logging
 import sys
 import subprocess
 import datetime
+import websockets
 from w1thermsensor import W1ThermSensor
 
 logging.basicConfig(format='%(asctime)s %(levelname)s\t%(message)s', level=logging.WARNING)
@@ -64,6 +64,44 @@ class RemotePowerSocket:
 loop = asyncio.get_event_loop()
 
 
+class Communicator:
+    def __init__(self, command_callback):
+        self.command_callback = command_callback
+        self.websocket = None
+
+    @asyncio.coroutine
+    def connect(self):
+        delay_reconnect = False
+        while True:
+            try:
+                logger.info("Connecting to: " + server_websocket)
+                self.websocket = yield from websockets.connect(server_websocket)
+                logger.info("WebSocket connected: " + server_websocket)
+                delay_reconnect = False
+
+                try:
+                    while True:
+                        command = yield from self.websocket.recv()
+                        self.command_callback(command)
+                finally:
+                    websocket_local = self.websocket
+                    self.websocket = None
+                    yield from websocket_local.close()
+            except:
+                logger.exception("Websocket connection error")
+                # if this was already a reconnect, then let's sleep a bit
+                if delay_reconnect:
+                    yield from asyncio.sleep(3)
+                delay_reconnect = True
+
+    @asyncio.coroutine
+    def send(self, measurements):
+        logger.info("Sending measurements: " + str(measurements))
+        if self.websocket is not None:
+            yield from self.websocket.send(json.dumps(measurements))
+        else:
+            logger.error("Cannot send measurements. WebSocket is not connected.")
+
 @asyncio.coroutine
 def main():
     logger.info("Hm, Aquarium!")
@@ -82,6 +120,12 @@ def main():
 
     daylight = RemotePowerSocket("Daylight", "01000", "1")
     moonlight = RemotePowerSocket("Moonlight", "01000", "2")
+
+    communicator = Communicator(handle_command)
+
+    # asynchrounsly connect to websocket
+    # All this is written in a way so that even if the server is down main functionality still works
+    loop.create_task(communicator.connect())
 
     def get_water_temperature():
         try:
@@ -102,13 +146,19 @@ def main():
             room_temperature_values.append(room_temp)
         values_count += 1
         if values_count >= aggregated_measurements_count:
+            measurements = {}
             # only store values if we have enough to calculate a proper median
             if len(water_temperature_values) == values_count:
                 median_water_temperature = median(water_temperature_values)
-                send(median_water_temperature, "water")
+                measurements["temperature_water"] = median_water_temperature
             if len(room_temperature_values) == values_count:
                 median_room_temperature = median(room_temperature_values)
-                send(median_room_temperature, "room")
+                measurements["temperature_room"] = median_room_temperature
+            state = {
+                "controllerId": "aqua",
+                "values": measurements
+            }
+            yield from communicator.send(state)
             water_temperature_values = []
             room_temperature_values = []
             values_count = 0
@@ -117,27 +167,6 @@ def main():
         processing_time = loop.time() - start_time
         sleep_time = max(measure_interval - processing_time, 0)
         yield from asyncio.sleep(sleep_time)
-
-
-def send(temperature, name):
-    url = get_service_endpoint("write?db=" + influx_database_name)
-    headers = {}
-    data = "temp,name=" + name + " value=" + str(temperature)
-    logger.info("Sending " + name + " temperature: " + str(temperature))
-    try:
-        response = requests.post(url, data=data, headers=headers, timeout=5.0)
-        response.raise_for_status()
-    except KeyboardInterrupt:
-        raise
-    except:
-        logger.exception("Communication error with server")
-
-
-def get_service_endpoint(endpoint):
-    if influx_url.endswith("/"):
-        return influx_url + endpoint
-    else:
-        return influx_url + "/" + endpoint
 
 
 def get_room_temperature():
@@ -163,7 +192,11 @@ def moonlight_on_condition():
     return datetime.time(19, 00) <= datetime.datetime.now().time() <= datetime.time(20, 30)
     #return False
 
-try:
-    loop.run_until_complete(main())
-finally:
-    loop.close()
+
+def handle_command(command):
+    # TODO
+    logger.info(command)
+
+
+loop.create_task(main())
+loop.run_forever()
