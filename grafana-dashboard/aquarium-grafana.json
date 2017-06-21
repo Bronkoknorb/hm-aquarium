@@ -1,8 +1,8 @@
 {
   "__inputs": [
     {
-      "name": "DS_INFLUXDB",
-      "label": "influxdb",
+      "name": "DS_HOME",
+      "label": "home",
       "description": "",
       "type": "datasource",
       "pluginId": "influxdb",
@@ -42,15 +42,96 @@
   "rows": [
     {
       "collapse": false,
-      "height": 338,
+      "height": "350",
       "panels": [
         {
+          "alert": {
+            "conditions": [
+              {
+                "evaluator": {
+                  "params": [
+                    24,
+                    27
+                  ],
+                  "type": "outside_range"
+                },
+                "operator": {
+                  "type": "and"
+                },
+                "query": {
+                  "datasourceId": 1,
+                  "model": {
+                    "alias": "Temperatur",
+                    "dsType": "influxdb",
+                    "groupBy": [
+                      {
+                        "params": [
+                          "$interval"
+                        ],
+                        "type": "time"
+                      },
+                      {
+                        "params": [
+                          "none"
+                        ],
+                        "type": "fill"
+                      }
+                    ],
+                    "hide": false,
+                    "interval": "",
+                    "measurement": "temp",
+                    "policy": "default",
+                    "refId": "A",
+                    "resultFormat": "time_series",
+                    "select": [
+                      [
+                        {
+                          "params": [
+                            "value"
+                          ],
+                          "type": "field"
+                        },
+                        {
+                          "params": [],
+                          "type": "mean"
+                        }
+                      ]
+                    ],
+                    "tags": [
+                      {
+                        "key": "name",
+                        "operator": "=",
+                        "value": "water"
+                      }
+                    ]
+                  },
+                  "params": [
+                    "A",
+                    "5m",
+                    "now"
+                  ]
+                },
+                "reducer": {
+                  "params": [],
+                  "type": "avg"
+                },
+                "type": "query"
+              }
+            ],
+            "executionErrorState": "alerting",
+            "frequency": "5m",
+            "handler": 1,
+            "message": "Alarm Wassertemperatur",
+            "name": "Temperatur (Wasser) alert",
+            "noDataState": "no_data",
+            "notifications": []
+          },
           "aliasColors": {
             "Temperatur": "#6ED0E0"
           },
           "bars": false,
-          "datasource": "${DS_INFLUXDB}",
-          "decimals": 3,
+          "datasource": "${DS_HOME}",
+          "decimals": 2,
           "fill": 0,
           "id": 1,
           "interval": "",
@@ -94,7 +175,9 @@
                   "type": "fill"
                 }
               ],
-              "measurement": "temp",
+              "hide": false,
+              "interval": "",
+              "measurement": "measure",
               "policy": "default",
               "refId": "A",
               "resultFormat": "time_series",
@@ -116,7 +199,13 @@
                 {
                   "key": "name",
                   "operator": "=",
-                  "value": "water"
+                  "value": "temperature_water"
+                },
+                {
+                  "condition": "AND",
+                  "key": "controller",
+                  "operator": "=",
+                  "value": "aqua"
                 }
               ]
             }
@@ -125,30 +214,16 @@
             {
               "colorMode": "critical",
               "fill": true,
-              "line": false,
-              "op": "gt",
-              "value": 28
+              "line": true,
+              "op": "lt",
+              "value": 24
             },
             {
               "colorMode": "critical",
               "fill": true,
-              "line": false,
-              "op": "lt",
-              "value": 23.5
-            },
-            {
-              "colorMode": "warning",
-              "fill": true,
-              "line": false,
+              "line": true,
               "op": "gt",
-              "value": 26
-            },
-            {
-              "colorMode": "warning",
-              "fill": true,
-              "line": false,
-              "op": "lt",
-              "value": 24
+              "value": 27
             }
           ],
           "timeFrom": null,
@@ -196,12 +271,13 @@
     },
     {
       "collapse": false,
-      "height": 250,
+      "height": "350",
       "panels": [
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_INFLUXDB}",
+          "datasource": "${DS_HOME}",
+          "decimals": 2,
           "fill": 0,
           "id": 2,
           "legend": {
@@ -246,7 +322,7 @@
                 }
               ],
               "hide": false,
-              "measurement": "temp",
+              "measurement": "measure",
               "policy": "default",
               "refId": "A",
               "resultFormat": "time_series",
@@ -268,7 +344,13 @@
                 {
                   "key": "name",
                   "operator": "=",
-                  "value": "room"
+                  "value": "temperature_room"
+                },
+                {
+                  "condition": "AND",
+                  "key": "controller",
+                  "operator": "=",
+                  "value": "aqua"
                 }
               ]
             }
@@ -292,10 +374,10 @@
           "yaxes": [
             {
               "format": "celsius",
-              "label": null,
+              "label": "",
               "logBase": 1,
-              "max": null,
-              "min": null,
+              "max": "40",
+              "min": "0",
               "show": true
             },
             {
@@ -324,7 +406,7 @@
     "list": []
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {
@@ -354,5 +436,5 @@
   },
   "timezone": "browser",
   "title": "Aquarium",
-  "version": 23
+  "version": 49
 }
