@@ -4,6 +4,7 @@ import asyncio
 from time import sleep
 from pprint import pprint
 from statistics import median
+from gpiozero import DigitalOutputDevice
 import json
 import logging
 import sys
@@ -22,6 +23,34 @@ except ImportError as err:
     print("The configuration file config.py does not exist. Have a look at config.sample.py for reference. (" +
           str(err) + ")")
     exit(1)
+
+
+class Fan:
+    """
+    A fan which cools the aquarium switched by a relay.
+
+    :param int pin:
+        The GPIO pin (in BCM numbering) that the relay is connected to.
+
+    :param bool active_high:
+        Whether the relay is active on high or low. Relays are usually active on low, therefore the default is False.
+    """
+    def __init__(self, pin: int, active_high: bool = False):
+        self._relay = DigitalOutputDevice(pin=pin, active_high=active_high)
+
+    def on(self):
+        self._relay.value = True
+
+    def off(self):
+        self._relay.value = False
+
+    @property
+    def is_on(self) -> bool:
+        return self._relay.value
+
+    @property
+    def is_off(self):
+        return not self.is_on
 
 
 class RemotePowerSocket:
@@ -118,6 +147,10 @@ def main():
 
     sensor = W1ThermSensor()
 
+    fan = Fan(pin=14)
+    fan_turn_on_temperature = 26.0
+    fan_turn_off_temperature = 25.5
+
     daylight = RemotePowerSocket("Daylight", "01000", "1")
     moonlight = RemotePowerSocket("Moonlight", "01000", "2")
 
@@ -136,6 +169,22 @@ def main():
             logger.exception("Error reading water temperature sensor")
             return None
 
+    def control_fan(current_water_temp):
+        if current_water_temp is None:
+            if fan.is_on:
+                logger.error("Water temperature unknown. Turning off fan.")
+                fan.off()
+        else:
+            if fan.is_off:
+                if current_water_temp >= fan_turn_on_temperature:
+                    logger.info("Turning fan on")
+                    fan.on()
+            else:  # fan is on
+                if current_water_temp <= fan_turn_off_temperature:
+                    logger.info("Turning fan off")
+                    fan.off()
+        return fan.is_on
+
     while True:
         start_time = loop.time()
         water_temp = get_water_temperature()
@@ -147,6 +196,7 @@ def main():
         values_count += 1
         if values_count >= aggregated_measurements_count:
             measurements = {}
+            median_water_temperature = None
             # only store values if we have enough to calculate a proper median
             if len(water_temperature_values) == values_count:
                 median_water_temperature = median(water_temperature_values)
@@ -154,6 +204,8 @@ def main():
             if len(room_temperature_values) == values_count:
                 median_room_temperature = median(room_temperature_values)
                 measurements["temperature_room"] = median_room_temperature
+            fan_is_on = control_fan(median_water_temperature)
+            measurements["fan"] = 1 if fan_is_on else 0
             state = {
                 "controllerId": "aqua",
                 "values": measurements
