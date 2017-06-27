@@ -127,7 +127,10 @@ class Communicator:
     def send(self, measurements):
         logger.info("Sending measurements: " + str(measurements))
         if self.websocket is not None:
-            yield from self.websocket.send(json.dumps(measurements))
+            try:
+                yield from self.websocket.send(json.dumps(measurements))
+            except:
+                logger.exception("Websocket connection error")
         else:
             logger.error("Cannot send measurements. WebSocket is not connected.")
 
