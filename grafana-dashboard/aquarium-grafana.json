@@ -59,7 +59,7 @@
                   "type": "and"
                 },
                 "query": {
-                  "datasourceId": 1,
+                  "datasourceId": 3,
                   "model": {
                     "alias": "Temperatur",
                     "dsType": "influxdb",
@@ -79,7 +79,7 @@
                     ],
                     "hide": false,
                     "interval": "",
-                    "measurement": "temp",
+                    "measurement": "measure",
                     "policy": "default",
                     "refId": "A",
                     "resultFormat": "time_series",
@@ -101,7 +101,13 @@
                       {
                         "key": "name",
                         "operator": "=",
-                        "value": "water"
+                        "value": "temperature_water"
+                      },
+                      {
+                        "condition": "AND",
+                        "key": "controller",
+                        "operator": "=",
+                        "value": "aqua"
                       }
                     ]
                   },
@@ -271,7 +277,136 @@
     },
     {
       "collapse": false,
-      "height": "350",
+      "height": 84,
+      "panels": [
+        {
+          "aliasColors": {},
+          "bars": false,
+          "datasource": "${DS_HOME}",
+          "decimals": 2,
+          "fill": 0,
+          "id": 3,
+          "legend": {
+            "alignAsTable": false,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "rightSide": false,
+            "show": false,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "span": 12,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "alias": "",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "none"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "hide": false,
+              "measurement": "measure",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": [
+                {
+                  "key": "name",
+                  "operator": "=",
+                  "value": "fan"
+                },
+                {
+                  "condition": "AND",
+                  "key": "controller",
+                  "operator": "=",
+                  "value": "aqua"
+                }
+              ]
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Fan",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "none",
+              "label": "",
+              "logBase": 1,
+              "max": "1",
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ]
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 250,
       "panels": [
         {
           "aliasColors": {},
@@ -436,5 +571,5 @@
   },
   "timezone": "browser",
   "title": "Aquarium",
-  "version": 49
+  "version": 57
 }
