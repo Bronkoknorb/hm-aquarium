@@ -154,7 +154,7 @@ def main():
     fan_turn_on_temperature = 26.0
     fan_turn_off_temperature = 25.5
 
-    daylight = RemotePowerSocket("Daylight", "01000", "1")
+    sunlight = RemotePowerSocket("Sunlight", "01000", "1")
     moonlight = RemotePowerSocket("Moonlight", "01000", "2")
 
     communicator = Communicator(handle_command)
@@ -196,6 +196,8 @@ def main():
         room_temp = get_room_temperature()
         if room_temp is not None:
             room_temperature_values.append(room_temp)
+        sunlight.switch(sunlight_on_condition())
+        moonlight.switch(moonlight_on_condition())
         values_count += 1
         if values_count >= aggregated_measurements_count:
             measurements = {}
@@ -209,6 +211,8 @@ def main():
                 measurements["temperature_room"] = median_room_temperature
             fan_is_on = control_fan(median_water_temperature)
             measurements["fan"] = 1 if fan_is_on else 0
+            measurements["sunlight"] = 1 if sunlight.is_on else 0
+            measurements["moonlight"] = 1 if moonlight.is_on else 0
             state = {
                 "controllerId": "aqua",
                 "values": measurements
@@ -217,8 +221,6 @@ def main():
             water_temperature_values = []
             room_temperature_values = []
             values_count = 0
-        moonlight.switch(moonlight_on_condition())
-        daylight.switch(daylight_on_condition())
         processing_time = loop.time() - start_time
         sleep_time = max(measure_interval - processing_time, 0)
         yield from asyncio.sleep(sleep_time)
@@ -239,7 +241,7 @@ def get_room_temperature():
         return None
 
 
-def daylight_on_condition():
+def sunlight_on_condition():
     return datetime.time(9, 30) <= datetime.datetime.now().time() <= datetime.time(19, 00)
 
 
@@ -252,6 +254,6 @@ def handle_command(command):
     # TODO
     logger.info(command)
 
-
-loop.create_task(main())
-loop.run_forever()
+if __name__ == "__main__":
+    loop.create_task(main())
+    loop.run_forever()
