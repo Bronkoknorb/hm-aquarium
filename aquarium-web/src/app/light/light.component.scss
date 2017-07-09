@@ -1,0 +1,28 @@
+.switches {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0.5em;
+    margin-bottom: 1em;
+    div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 10em;
+        height: 10em;
+
+        img {
+            width: 100%;
+            display: block;
+            margin: auto;
+        }
+    }
+}
+
+.disabled-switch {
+     filter: grayscale(100%) opacity(50%);
+}
+
+.disabled-switch:hover {
+     filter: grayscale(0%) opacity(100%);
+}

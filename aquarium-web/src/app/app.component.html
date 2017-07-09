@@ -1,7 +1,7 @@
 <h1>{{title}}</h1>
 
-<img src="assets/sun.jpg" />
-<img src="assets/moon.svg" />
+<app-light [state]="state"></app-light>
 
-<app-camera websocketAddress="ws://aqua:8888/websocket"></app-camera>
-<app-camera websocketAddress="ws://aqua:8889/websocket"></app-camera>
+<app-camera websocketAddress="wss://aqua.gerty.roga.czedik.at/cam1/websocket"></app-camera>
+<br />
+<app-camera websocketAddress="wss://aqua.gerty.roga.czedik.at/cam2/websocket"></app-camera>

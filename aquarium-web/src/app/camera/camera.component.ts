@@ -12,6 +12,8 @@ export class CameraComponent implements OnInit {
 
   @ViewChild('img') img: ElementRef;
 
+  fullscreen = false;
+
   constructor() { }
 
   ngOnInit() {
@@ -35,7 +37,6 @@ export class CameraComponent implements OnInit {
     }
 
     ws.onopen = function() {
-        console.log('connection was established');
         start_time = performance.now();
         requestImage();
     };
@@ -58,6 +59,10 @@ export class CameraComponent implements OnInit {
 
         setTimeout(requestImage, timeout);
     };
+  }
+
+  toggleFullscreen() {
+    this.fullscreen = !this.fullscreen;
   }
 
 }

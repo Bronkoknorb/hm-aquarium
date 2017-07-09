@@ -1,0 +1,11 @@
+<div class="switches">
+  <div>
+    <img src="assets/sun.jpg" [ngClass]="{'disabled-switch': !sunlight}" (click)="turnSunlightOn()" />
+  </div>
+  <div>
+    <img src="assets/moon.svg" style="width: 80%" [ngClass]="{'disabled-switch': !moonlight}" (click)="turnMoonlightOn()" />
+  </div>
+  <div>
+    <img src="assets/light_off.png" style="width: 72%" [ngClass]="{'disabled-switch': !lightsoff}" (click)="turnLightsOff()" />
+  </div>
+</div>
