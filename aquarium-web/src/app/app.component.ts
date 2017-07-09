@@ -8,7 +8,7 @@ import { ApiService } from './api.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'H💛M AQUARIUM';
+  title = 'M💛H AQUARIUM';
 
   state;
 
