@@ -9,7 +9,7 @@ import 'rxjs/add/observable/throw';
 @Injectable()
 export class ApiService {
 
-  private baseUrl = 'http://gerty:8080/api';
+  private baseUrl = 'https://aqua.gerty.roga.czedik.at/api';
 
   private registeredComponent;
 
