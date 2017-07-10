@@ -19,10 +19,6 @@
     }
 }
 
-.disabled-switch {
-     filter: grayscale(100%) opacity(50%);
-}
-
 .disabled-switch:hover {
      filter: grayscale(0%) opacity(100%);
 }

@@ -6,12 +6,16 @@ import { AppComponent } from './app.component';
 import { ApiService } from './api.service';
 import { CameraComponent } from './camera/camera.component';
 import { LightComponent } from './light/light.component';
+import { TemperatureComponent } from './temperature/temperature.component';
+import { FanComponent } from './fan/fan.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CameraComponent,
-    LightComponent
+    LightComponent,
+    TemperatureComponent,
+    FanComponent
   ],
   imports: [
     BrowserModule,

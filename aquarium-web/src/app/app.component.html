@@ -2,6 +2,15 @@
 
 <app-light [state]="state"></app-light>
 
+<div class="components-row">
+    <app-temperature [temp]="state?.values.temperature_water" label="WATER"></app-temperature>
+    <app-temperature [temp]="state?.values.temperature_room" label="ROOM"></app-temperature>
+</div>
+
+<div class="components-row">
+    <app-fan [on]="state?.values.fan"></app-fan>
+</div>
+
 <app-camera websocketAddress="wss://aqua.gerty.roga.czedik.at/cam1/websocket"></app-camera>
 <br />
 <app-camera websocketAddress="wss://aqua.gerty.roga.czedik.at/cam2/websocket"></app-camera>

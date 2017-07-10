@@ -3,3 +3,32 @@
 body {
     text-align: center;
 }
+
+.components-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+
+  > * {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
+
+    img {
+      width: 100%;
+    }
+  }
+
+  .component-icon {
+    max-width: 5em;
+  }
+
+  margin-bottom: 1em;
+}
+
+.disabled-switch {
+     filter: grayscale(100%) opacity(50%);
+}
