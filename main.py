@@ -174,8 +174,16 @@ def main():
     sensor = W1ThermSensor()
 
     fan = Fan(pin=14)
-    fan_turn_on_temperature = 26.0
-    fan_turn_off_temperature = 25.5
+
+    config = {
+        "fan_turn_on_temperature": 26.0,
+        "fan_turn_off_temperature": 25.5
+    }
+
+    current_measurements = {
+        "temperature_water": None,
+        "temperature_room": None
+    }
 
     sunlight = AutomaticAndManualSwitch(RemotePowerSocket("Sunlight", "01000", "1"))
     moonlight = AutomaticAndManualSwitch(RemotePowerSocket("Moonlight", "01000", "2"))
@@ -187,6 +195,13 @@ def main():
             moonlight.switch(float_to_bool(values["moonlight"]))
         if "sunlight" in values:
             sunlight.switch(float_to_bool(values["sunlight"]))
+        if "fan_turn_on_temperature" in values:
+            config["fan_turn_on_temperature"] = values["fan_turn_on_temperature"]
+        if "fan_turn_off_temperature" in values:
+            config["fan_turn_off_temperature"] = values["fan_turn_off_temperature"]
+        if "fan_turn_on_temperature" in values or "fan_turn_off_temperature" in values:
+            control_fan()
+
 
     communicator = Communicator(handle_command)
 
@@ -203,18 +218,19 @@ def main():
             logger.exception("Error reading water temperature sensor")
             return None
 
-    def control_fan(current_water_temp):
+    def control_fan():
+        current_water_temp = current_measurements["temperature_water"]
         if current_water_temp is None:
             if fan.is_on:
                 logger.error("Water temperature unknown. Turning off fan.")
                 fan.off()
         else:
             if fan.is_off:
-                if current_water_temp >= fan_turn_on_temperature:
+                if current_water_temp >= config["fan_turn_on_temperature"]:
                     logger.info("Turning fan on")
                     fan.on()
             else:  # fan is on
-                if current_water_temp <= fan_turn_off_temperature:
+                if current_water_temp <= config["fan_turn_off_temperature"]:
                     logger.info("Turning fan off")
                     fan.off()
         return fan.is_on
@@ -234,17 +250,21 @@ def main():
         if values_count >= aggregated_measurements_count:
             measurements = {}
             median_water_temperature = None
+            median_room_temperature = None
             # only store values if we have enough to calculate a proper median
             if len(water_temperature_values) == values_count:
                 median_water_temperature = median(water_temperature_values)
                 measurements["temperature_water"] = median_water_temperature
+            current_measurements["temperature_water"] = median_water_temperature
             if len(room_temperature_values) == values_count:
                 median_room_temperature = median(room_temperature_values)
                 measurements["temperature_room"] = median_room_temperature
-            fan_is_on = control_fan(median_water_temperature)
+            current_measurements["temperature_room"] = median_room_temperature
+            fan_is_on = control_fan()
             measurements["fan"] = 1 if fan_is_on else 0
             measurements["sunlight"] = 1 if sunlight.is_on else 0
             measurements["moonlight"] = 1 if moonlight.is_on else 0
+            measurements.update(config)
             state = {
                 "controllerId": "aqua",
                 "values": measurements
