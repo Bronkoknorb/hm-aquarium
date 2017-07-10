@@ -2,7 +2,7 @@
 
 import asyncio
 from time import sleep
-from pprint import pprint
+from pprint import pprint, pformat
 from statistics import median
 from gpiozero import DigitalOutputDevice
 import json
@@ -53,6 +53,25 @@ class Fan:
         return not self.is_on
 
 
+class AutomaticAndManualSwitch:
+    """
+    Wraps a switch for automatic and manual control.
+    """
+    def __init__(self, switch):
+        self._switch = switch
+        self.is_on = switch.is_on
+        self.is_auto_on = None  # initially unknown
+
+    def switch(self, on: bool):
+        self.is_on = on
+        self._switch.switch(on)
+
+    def switch_auto(self, on: bool):
+        if self.is_auto_on != on:
+            self.is_auto_on = on
+            self.switch(on)
+
+
 class RemotePowerSocket:
     """
     Allows to control a remote power socket via a 433Mhz sender.
@@ -70,18 +89,17 @@ class RemotePowerSocket:
         self.switch(False)
 
     def switch(self, on: bool):
-        if on != self.is_on:
-            logger.info("Turning " + self.name + " " + ("on" if on else "off"))
-            on_off_param = "1" if on else "0"
-            # let's try it three times and also sleep afterwards a bit to not interfere with other calls
-            # (I am probably overly cautious)
-            self.send_signal(self.system_code, self.unit_code, on_off_param)
-            sleep(0.6)
-            self.send_signal(self.system_code, self.unit_code, on_off_param)
-            sleep(0.5)
-            self.send_signal(self.system_code, self.unit_code, on_off_param)
-            sleep(0.5)
-            self.is_on = on
+        logger.info("Turning " + self.name + " " + ("on" if on else "off"))
+        on_off_param = "1" if on else "0"
+        # let's try it three times and also sleep afterwards a bit to not interfere with other calls
+        # (I am probably overly cautious)
+        self.send_signal(self.system_code, self.unit_code, on_off_param)
+        sleep(0.6)
+        self.send_signal(self.system_code, self.unit_code, on_off_param)
+        sleep(0.5)
+        self.send_signal(self.system_code, self.unit_code, on_off_param)
+        sleep(0.5)
+        self.is_on = on
 
     @staticmethod
     def send_signal(system_code: str, unit_code:str, on_off_param: str):
@@ -111,7 +129,7 @@ class Communicator:
                 try:
                     while True:
                         command = yield from self.websocket.recv()
-                        self.command_callback(command)
+                        self.command_callback(json.loads(command))
                 finally:
                     websocket_local = self.websocket
                     self.websocket = None
@@ -134,6 +152,11 @@ class Communicator:
         else:
             logger.error("Cannot send measurements. WebSocket is not connected.")
 
+
+def float_to_bool(f):
+    return f == 1
+
+
 @asyncio.coroutine
 def main():
     logger.info("Hm, Aquarium!")
@@ -154,8 +177,16 @@ def main():
     fan_turn_on_temperature = 26.0
     fan_turn_off_temperature = 25.5
 
-    sunlight = RemotePowerSocket("Sunlight", "01000", "1")
-    moonlight = RemotePowerSocket("Moonlight", "01000", "2")
+    sunlight = AutomaticAndManualSwitch(RemotePowerSocket("Sunlight", "01000", "1"))
+    moonlight = AutomaticAndManualSwitch(RemotePowerSocket("Moonlight", "01000", "2"))
+
+    def handle_command(commands):
+        values = commands["values"];
+        logger.info("Received commands: " + pformat(values))
+        if "moonlight" in values:
+            moonlight.switch(float_to_bool(values["moonlight"]))
+        if "sunlight" in values:
+            sunlight.switch(float_to_bool(values["sunlight"]))
 
     communicator = Communicator(handle_command)
 
@@ -191,13 +222,14 @@ def main():
     while True:
         start_time = loop.time()
         water_temp = get_water_temperature()
+        logger.info("Water temperature: " + str(water_temp))
         if water_temp is not None:
             water_temperature_values.append(water_temp)
         room_temp = get_room_temperature()
         if room_temp is not None:
             room_temperature_values.append(room_temp)
-        sunlight.switch(sunlight_on_condition())
-        moonlight.switch(moonlight_on_condition())
+        sunlight.switch_auto(sunlight_on_condition())
+        moonlight.switch_auto(moonlight_on_condition())
         values_count += 1
         if values_count >= aggregated_measurements_count:
             measurements = {}
@@ -249,10 +281,6 @@ def moonlight_on_condition():
     return datetime.time(19, 00) <= datetime.datetime.now().time() <= datetime.time(20, 30)
     #return False
 
-
-def handle_command(command):
-    # TODO
-    logger.info(command)
 
 if __name__ == "__main__":
     loop.create_task(main())
