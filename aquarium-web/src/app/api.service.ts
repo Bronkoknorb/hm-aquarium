@@ -46,7 +46,6 @@ export class ApiService {
 
   toJSON(response: Response): any {
     const json = response.json();
-    console.log(json);
     return json;
   }
 }

@@ -1,2 +1,20 @@
 <div class="component-icon"><img src="assets/fan.png" style="width:90%" [ngClass]="{'disabled-switch': !on}" /></div>
 <div><strong>FAN</strong><br />{{on ? "ON" : "OFF"}}</div>
+<div class="spacing">
+  <form>
+    <div class="input-group">
+      <div class="input-group-addon">Turn on</div>
+      <input type="text" class="form-control temperature_input" [(ngModel)]="turn_on_temperature" name="turn_on_temperature" />
+      <div class="input-group-addon">°C</div>
+    </div>
+    
+    <div class="input-group">
+      <div class="input-group-addon">Turn off</div>
+      <input type="text" class="form-control temperature_input" [(ngModel)]="turn_off_temperature" name="turn_off_temperature" />
+      <div class="input-group-addon">°C</div>
+    </div>
+  </form>
+</div>
+<div class="spacing">
+  <button class="btn btn-primary" (click)="save()">Save</button>
+</div>
