@@ -28,4 +28,4 @@ The build artifacts will be stored in the `dist/` directory.
 
 ## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|module`.
+Run `yarn run ng generate component component-name` to generate a new component. You can also use `yarn run ng generate directive|pipe|service|class|module`.
