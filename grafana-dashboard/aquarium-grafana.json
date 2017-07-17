@@ -14,7 +14,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "4.1.1"
+      "version": "4.4.1"
     },
     {
       "type": "panel",
@@ -38,7 +38,6 @@
   "hideControls": false,
   "id": null,
   "links": [],
-  "refresh": "1m",
   "rows": [
     {
       "collapse": false,
@@ -136,6 +135,8 @@
             "Temperatur": "#6ED0E0"
           },
           "bars": false,
+          "dashLength": 10,
+          "dashes": false,
           "datasource": "${DS_HOME}",
           "decimals": 2,
           "fill": 0,
@@ -160,6 +161,7 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
+          "spaceLength": 10,
           "span": 12,
           "stack": false,
           "steppedLine": false,
@@ -184,6 +186,7 @@
               "hide": false,
               "interval": "",
               "measurement": "measure",
+              "orderByTime": "ASC",
               "policy": "default",
               "refId": "A",
               "resultFormat": "time_series",
@@ -243,6 +246,7 @@
           "transparent": false,
           "type": "graph",
           "xaxis": {
+            "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
@@ -282,6 +286,8 @@
         {
           "aliasColors": {},
           "bars": false,
+          "dashLength": 10,
+          "dashes": false,
           "datasource": "${DS_HOME}",
           "decimals": 2,
           "fill": 0,
@@ -306,6 +312,7 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
+          "spaceLength": 10,
           "span": 12,
           "stack": false,
           "steppedLine": false,
@@ -372,6 +379,7 @@
           },
           "type": "graph",
           "xaxis": {
+            "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
@@ -411,6 +419,8 @@
         {
           "aliasColors": {},
           "bars": false,
+          "dashLength": 10,
+          "dashes": false,
           "datasource": "${DS_HOME}",
           "decimals": 2,
           "fill": 0,
@@ -435,6 +445,7 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
+          "spaceLength": 10,
           "span": 12,
           "stack": false,
           "steppedLine": false,
@@ -501,6 +512,7 @@
           },
           "type": "graph",
           "xaxis": {
+            "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
@@ -571,5 +583,5 @@
   },
   "timezone": "browser",
   "title": "Aquarium",
-  "version": 57
+  "version": 59
 }
