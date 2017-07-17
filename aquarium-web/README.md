@@ -26,6 +26,10 @@ The build artifacts will be stored in the `dist/` directory.
 
     yarn outdated
 
+## Interactively upgrade packages
+
+    yarn upgrade-interactive --exact
+
 ## Code scaffolding
 
 Run `yarn run ng generate component component-name` to generate a new component. You can also use `yarn run ng generate directive|pipe|service|class|module`.
