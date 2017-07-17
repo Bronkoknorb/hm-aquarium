@@ -18,6 +18,10 @@ Navigate to `http://localhost:4200/`. The app will automatically reload if you c
 
 The build artifacts will be stored in the `dist/` directory.
 
+## Clean all generated files
+
+    npm run clean
+
 ## Show outdated packages
 
     npm outdated
