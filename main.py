@@ -129,7 +129,7 @@ class Communicator:
                 try:
                     while True:
                         command = yield from self.websocket.recv()
-                        self.command_callback(json.loads(command))
+                        yield from self.command_callback(json.loads(command))
                 finally:
                     websocket_local = self.websocket
                     self.websocket = None
@@ -188,6 +188,13 @@ def main():
     sunlight = AutomaticAndManualSwitch(RemotePowerSocket("Sunlight", "01000", "1"))
     moonlight = AutomaticAndManualSwitch(RemotePowerSocket("Moonlight", "01000", "2"))
 
+    @asyncio.coroutine
+    def top_off(duration):
+        logger.info("Starting pump")
+        yield from asyncio.sleep(duration)
+        logger.info("Stopping pump")
+
+    @asyncio.coroutine
     def handle_command(commands):
         values = commands["values"];
         logger.info("Received commands: " + pformat(values))
@@ -201,7 +208,8 @@ def main():
             config["fan_turn_off_temperature"] = values["fan_turn_off_temperature"]
         if "fan_turn_on_temperature" in values or "fan_turn_off_temperature" in values:
             control_fan()
-
+        if "top_off_duration" in values:
+            yield from top_off(values["top_off_duration"])
 
     communicator = Communicator(handle_command)
 
