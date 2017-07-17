@@ -30,8 +30,8 @@
     "@angular/compiler-cli": "4.3.0",
     "@angular/language-service": "4.3.0",
     "codelyzer": "3.1.2",
+    "rimraf": "2.6.1",
     "tslint": "5.5.0",
-    "typescript": "2.4.1",
-    "rimraf": "2.6.1"
+    "typescript": "2.4.1"
   }
 }
