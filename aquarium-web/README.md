@@ -4,27 +4,27 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Install dependencies
 
-    npm install
+    yarn
 
 ## Development server
 
-    npm start
+    yarn start
 
 Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## Production build
 
-    npm run build
+    yarn run build
 
 The build artifacts will be stored in the `dist/` directory.
 
 ## Clean all generated files
 
-    npm run clean
+    yarn run clean
 
 ## Show outdated packages
 
-    npm outdated
+    yarn outdated
 
 ## Code scaffolding
 
