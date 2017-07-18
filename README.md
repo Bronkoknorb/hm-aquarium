@@ -26,6 +26,11 @@ Python [w1thermsensor library](https://github.com/timofurrer/w1thermsensor/):
 Python [websockets library](https://websockets.readthedocs.io/):
 
     sudo pip3 install websockets
+    
+Python [PySisPM library](https://github.com/xypron/pysispm):
+
+    sudo pip3 install pyusb
+    sudo pip3 install pysispm
 
 ## Usage
 
