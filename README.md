@@ -31,6 +31,22 @@ Python [PySisPM library](https://github.com/xypron/pysispm):
 
     sudo pip3 install pyusb
     sudo pip3 install pysispm
+    
+Ensure that your user has rights to control the SIS-PM power sockets (Gembird EG-PM2):
+
+```
+sudo groupadd sispmctl
+sudo usermod -a -G sispmctl pi
+
+sudo cat > /lib/udev/rules.d/60-sispmctl.rules <<EOL
+SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="fd10", GROUP="sispmctl", MODE="660"
+SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="fd11", GROUP="sispmctl", MODE="660"
+SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="fd12", GROUP="sispmctl", MODE="660"
+SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="fd13", GROUP="sispmctl", MODE="660"
+EOL
+
+sudo udevadm control --reload-rules
+```
 
 ## Usage
 
