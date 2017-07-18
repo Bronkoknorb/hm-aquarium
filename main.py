@@ -219,12 +219,15 @@ def main():
 
     sunlight = AutomaticAndManualSwitch(SisPmPowerSocket("Sunlight", sispm_device, 1))
     moonlight = AutomaticAndManualSwitch(SisPmPowerSocket("Moonlight", sispm_device, 2))
+    top_off_pump = SisPmPowerSocket("Top-Off Pump", sispm_device, 3)
+
+    top_off_pump.off()
 
     @asyncio.coroutine
     def top_off(duration):
-        logger.info("Starting pump")
+        top_off_pump.on()
         yield from asyncio.sleep(duration)
-        logger.info("Stopping pump")
+        top_off_pump.off()
 
     @asyncio.coroutine
     def handle_command(commands):
