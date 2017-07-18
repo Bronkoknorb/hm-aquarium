@@ -12,6 +12,7 @@ import subprocess
 import datetime
 import websockets
 from w1thermsensor import W1ThermSensor
+import sispm
 
 logging.basicConfig(format='%(asctime)s %(levelname)s\t%(message)s', level=logging.WARNING)
 logger = logging.getLogger('hm-aquarium')
@@ -108,6 +109,31 @@ class RemotePowerSocket:
         subprocess.call(["/home/pi/software/raspberry-remote/send", system_code, unit_code, on_off_param])
 
 
+class SisPmPowerSocket:
+    """
+    Allows to control a remote power socket via a SIS-PM Power Socket (Gembird EG-PM2 in my case).
+    """
+    def __init__(self, name: str, device, socket_index):
+        self.name = name
+        self.device = device
+        self.socket_index = socket_index
+        self.is_on = None  # initially unknown (we could actually also query the device)
+
+    def on(self):
+        self.switch(True)
+
+    def off(self):
+        self.switch(False)
+
+    def switch(self, on: bool):
+        logger.info("Turning " + self.name + " " + ("on" if on else "off"))
+        if on:
+            sispm.switchon(self.device, self.socket_index)
+        else:
+            sispm.switchoff(self.device, self.socket_index)
+        self.is_on = on
+
+
 loop = asyncio.get_event_loop()
 
 
@@ -185,8 +211,14 @@ def main():
         "temperature_room": None
     }
 
-    sunlight = AutomaticAndManualSwitch(RemotePowerSocket("Sunlight", "01000", "1"))
-    moonlight = AutomaticAndManualSwitch(RemotePowerSocket("Moonlight", "01000", "2"))
+    sispm_devices = sispm.connect()
+    if len(sispm_devices) == 0:
+        print('No device found')
+        quit()
+    sispm_device = sispm_devices[0]
+
+    sunlight = AutomaticAndManualSwitch(SisPmPowerSocket("Sunlight", sispm_device, 1))
+    moonlight = AutomaticAndManualSwitch(SisPmPowerSocket("Moonlight", sispm_device, 2))
 
     @asyncio.coroutine
     def top_off(duration):
