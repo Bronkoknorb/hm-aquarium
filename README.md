@@ -38,7 +38,7 @@ Ensure that your user has rights to control the SIS-PM power sockets (Gembird EG
 sudo groupadd sispmctl
 sudo usermod -a -G sispmctl pi
 
-sudo cat > /lib/udev/rules.d/60-sispmctl.rules <<EOL
+sudo bash -c "cat > /lib/udev/rules.d/60-sispmctl.rules" <<EOL
 SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="fd10", GROUP="sispmctl", MODE="660"
 SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="fd11", GROUP="sispmctl", MODE="660"
 SUBSYSTEM=="usb", ATTR{idVendor}=="04b4", ATTR{idProduct}=="fd12", GROUP="sispmctl", MODE="660"
