@@ -41,7 +41,11 @@ export class ApiService {
     this.http
       .post(`${this.baseUrl}/updateController`, JSON.stringify(state), options)
       .toPromise()
-      .then(() => this.updateState());
+      .then(() => this.updateState())
+      .catch((e) => {
+        console.log(e);
+        this.updateState()
+      });
   }
 
   toJSON(response: Response): any {
