@@ -12,8 +12,6 @@ export class CameraComponent implements OnInit {
 
   @ViewChild('img') img: ElementRef;
 
-  fullscreen = false;
-
   webSocket: WebSocket = null;
 
   constructor() { }
@@ -34,7 +32,36 @@ export class CameraComponent implements OnInit {
   }
 
   toggleFullscreen() {
-    this.fullscreen = !this.fullscreen;
+    const fullscreenElement = document.fullscreenElement || (<any>document).mozFullScreenElement || document.webkitFullscreenElement;
+    const fullscreenEnabled = fullscreenElement != null;
+
+    function launchIntoFullscreen(element) {
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+      } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+      }
+    }
+
+    function exitFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((<any>document).mozCancelFullScreen) {
+        (<any>document).mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    }
+
+    if (fullscreenEnabled) {
+      exitFullscreen();
+    } else {
+      launchIntoFullscreen(this.img.nativeElement);
+    }
   }
 
   startVideo() {
