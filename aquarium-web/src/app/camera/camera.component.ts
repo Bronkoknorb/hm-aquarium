@@ -12,6 +12,8 @@ export class CameraComponent implements OnInit {
 
   @ViewChild('img') img: ElementRef;
 
+  fullscreen = false;
+
   webSocket: WebSocket = null;
 
   constructor() { }
@@ -58,8 +60,10 @@ export class CameraComponent implements OnInit {
     }
 
     if (fullscreenEnabled) {
+      this.fullscreen = false;
       exitFullscreen();
     } else {
+      this.fullscreen = true;
       launchIntoFullscreen(this.img.nativeElement);
     }
   }
