@@ -54,6 +54,34 @@ class Fan:
         return not self.is_on
 
 
+class TopOffPump:
+    """
+    A top-off pump which fills water into the aquarium, switched by a relay.
+
+    :param int pin:
+        The GPIO pin (in BCM numbering) that the relay is connected to.
+
+    :param bool active_high:
+        Whether the relay is active on high or low. Relays are usually active on low, therefore the default is False.
+    """
+    def __init__(self, pin: int, active_high: bool = False):
+        self._relay = DigitalOutputDevice(pin=pin, active_high=active_high)
+
+    def on(self):
+        self._relay.value = True
+
+    def off(self):
+        self._relay.value = False
+
+    @property
+    def is_on(self) -> bool:
+        return self._relay.value
+
+    @property
+    def is_off(self):
+        return not self.is_on
+
+
 class AutomaticAndManualSwitch:
     """
     Wraps a switch for automatic and manual control.
@@ -219,7 +247,7 @@ def main():
 
     sunlight = AutomaticAndManualSwitch(SisPmPowerSocket("Sunlight", sispm_device, 1))
     moonlight = AutomaticAndManualSwitch(SisPmPowerSocket("Moonlight", sispm_device, 2))
-    top_off_pump = SisPmPowerSocket("Top-Off Pump", sispm_device, 3)
+    top_off_pump = TopOffPump(pin=15)
 
     top_off_pump.off()
 
@@ -337,11 +365,11 @@ def get_room_temperature():
 
 
 def sunlight_on_condition():
-    return datetime.time(9, 30) <= datetime.datetime.now().time() <= datetime.time(19, 00)
+    return datetime.time(9, 30) <= datetime.datetime.now().time() <= datetime.time(18, 30)
 
 
 def moonlight_on_condition():
-    return datetime.time(19, 00) <= datetime.datetime.now().time() <= datetime.time(20, 30)
+    return datetime.time(18, 30) <= datetime.datetime.now().time() <= datetime.time(20, 00)
     #return False
 
 
